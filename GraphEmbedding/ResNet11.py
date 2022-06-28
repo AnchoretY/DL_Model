@@ -88,18 +88,19 @@ AdaptiveMaxPool2d-40            [10, 256, 1, 1]               0
         super(ResNet11, self).__init__()
         self.model_name = 'resnet11'
  
-        # 前几层: 图像转换
+        # 输入层
         self.pre = nn.Sequential(
             nn.Conv2d(1, 64, 3, 1, 1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True))
- 
-        # 重复的layer，分别有3，4，6，3个residual block
+            
+        # 三层残差块（3*3 CNN）
         self.layer1 = self._make_layer(64,64) # 第一个block stride为1，数据维度不变
         self.layer2 = self._make_layer(64,128,stride=2) 
         self.layer3 = self._make_layer(128,256,stride=2)
-
+        # 最大池化
         self.max_pool2d = nn.AdaptiveMaxPool2d(output_size=(1, 1))
+        # 图embedding转化，调整维度
         self.fc = nn.Linear(256,embedding_size)
         
     def _make_layer(self, inchannel, outchannel, stride=1):
